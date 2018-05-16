@@ -1,0 +1,20 @@
+{
+	"name": "resurs36/rconverter",
+	"description": "rconverter",
+	"homepage": "https://github.com/userator",
+	"license": "MIT License",
+	"require": {
+		"php": ">=5.6.0",
+		"symfony/console": "3.4.*",
+		"box/spout": "2.7.*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Command\\": "./src/Command"
+		}
+	},
+	"config": {
+		"disable-tls": true,
+		"secure-http": true
+	}
+}
