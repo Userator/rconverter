@@ -33,10 +33,8 @@ class Convert extends Command {
 		try {
 			$rows = $this->parseRows($input->getArgument('file'));
 			$struct = $this->makeStruct($rows, $input->getArgument('name'), $input->getArgument('shortname'), $input->getArgument('threshold'), $input->getArgument('limit'));
-			$render = $this->render($struct);
-
-//			$output->write(print_r($struct, 1));
-			$output->write($render);
+			$text = $this->renderText($struct);
+			$output->write(mb_convert_encoding($text, 'CP1251', mb_detect_encoding($text)));
 			return 0;
 		} catch (\Exception $e) {
 			$output->writeln('<error>' . $e->getMessage() . '</error>');
@@ -73,24 +71,27 @@ class Convert extends Command {
 
 		$idx = 0;
 		foreach ($rows as $key => $row) {
+			$row = array_map(function ($val) {
+				return trim(mb_convert_encoding($val, 'UTF-8', mb_detect_encoding($val)));
+			}, $row);
+
 			if (strlen($row[1])) {
 				$idx++;
 				$inquiry['questions'][$idx]['text'] = $row[1];
 				$inquiry['questions'][$idx]['picture'] = 'None';
 				$inquiry['questions'][$idx]['annotation'] = $row[5];
-				$inquiry['questions'][$idx]['answers'][trim($row[2])] = $row[3];
+				$inquiry['questions'][$idx]['answers'][$row[2]] = $row[3];
 				$inquiry['questions'][$idx]['trues'] = array_map('trim', explode(',', $row[4]));
 			} else {
-				$inquiry['questions'][$idx]['answers'][trim($row[2])] = $row[3];
+				$inquiry['questions'][$idx]['answers'][$row[2]] = $row[3];
 			}
 		}
 
 		return $inquiry;
 	}
 
-	protected function render(array $struct) {
-		$output = '';
-		$output .= 'Name' . PHP_EOL;
+	protected function renderText(array $struct) {
+		$output = 'Name' . PHP_EOL;
 		$output .= $struct['name'] . PHP_EOL;
 		$output .= 'Short_name' . PHP_EOL;
 		$output .= $struct['shortname'] . PHP_EOL;
